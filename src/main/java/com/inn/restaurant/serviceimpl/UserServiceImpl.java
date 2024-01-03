@@ -22,9 +22,10 @@ public class UserServiceImpl implements UserService {
     UserDao userDao;
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
-        log.info("Inside Signup {}", requestMap);
+
 
         try{
+            log.info("Inside Signup {}", requestMap);
 
             if (validateSignUpMap(requestMap)) {
                 User user = userDao.findByEmailId(requestMap.get("email"));
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
 
+        return RestaurantUtils.getResponseEntity(RestaurantConst.Something_Went_Wrong,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private boolean validateSignUpMap(Map<String, String> requestMap) {

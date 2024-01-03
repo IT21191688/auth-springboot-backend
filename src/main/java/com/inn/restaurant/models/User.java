@@ -1,4 +1,4 @@
-package com.inn.restaurant.POJO;
+package com.inn.restaurant.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -7,39 +7,48 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 
+@NamedQuery(name = "User.findByEmailId", query = "select u from User u where u.email=:email")
 @Data
 @Entity
 @DynamicUpdate
 @DynamicInsert
-@Table(name="user")
-public class User  implements Serializable {
-
-
-    private static final long serialVersionUID=1L;
+@Table(name = "user")
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name = "id")
     private int id;
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="contactNumber")
+    @Column(name = "contactNumber")
     private String contactNumber;
 
-    @Column(name="email")
+    @Column(name = "email", unique = true) // Ensure uniqueness of email
     private String email;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
-    @Column(name="status")
+    @Column(name = "status")
     private String status;
 
-    @Column(name="role")
+    @Column(name = "role")
     private String role;
 
-    
+    public User() {
+    }
 
+    // Constructor with fields
+    public User(String name, String contactNumber, String email, String password, String status, String role) {
+        this.name = name;
+        this.contactNumber = contactNumber;
+        this.email = email;
+        this.password = password;
+        this.status = status;
+        this.role = role;
+    }
 }
