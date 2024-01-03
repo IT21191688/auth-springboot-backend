@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface UserService {
 
-    //co
+    //commit
     ResponseEntity<String> signUp(Map<String,String> requestMap);
 
 }
