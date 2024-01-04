@@ -19,27 +19,28 @@ public class CustomerUserDetailsService implements UserDetailsService {
 
     @Autowired
     UserDao userDao;
-
-
     private com.inn.restaurant.models.User UserDetails;
-
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("inside loadUsername{}",username);
         UserDetails=userDao.findByEmailId(username);
 
-        if(!Objects.isNull(UserDetails))
-            return new User(UserDetails.getEmail(), UserDetails.getPassword(), new ArrayList<>());
-        else
-            throw  new UsernameNotFoundException("User Not Found");
+        log.info("user Details"+UserDetails);
 
+        if(!Objects.isNull(UserDetails)) {
+            return new User(UserDetails.getEmail(), UserDetails.getPassword(), new ArrayList<>());
+        }
+        else {
+            throw new UsernameNotFoundException("User Not Found");
+        }
 
     }
 
     public com.inn.restaurant.models.User getUserDetails(){
+
         return UserDetails;
+
     }
 }
 

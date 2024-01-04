@@ -1,5 +1,12 @@
 package com.inn.restaurant.JWT;
 
+import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -11,9 +18,69 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private  JwtUtil jwtUtil;
+
+    @Autowired
+    private CustomerUserDetailsService service;
+
+    Claims claims=null;
+    private String UserName=null;
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
+        if(httpServletRequest.getServletPath().matches("/user/Login | /user/fogotPassword | /user/signup")){
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
+        }else{
+
+            String authorizationHeader=httpServletRequest.getHeader("Authorization");
+            String token=null;
+
+            if(authorizationHeader !=null && authorizationHeader.startsWith("Bearer ")){
+                token=authorizationHeader.substring(7);
+                UserName=jwtUtil.extractUsername(token);
+
+                claims=jwtUtil.extractAllClaims(token);
+
+            }
+
+            if(UserName!=null && SecurityContextHolder.getContext().getAuthentication()==null){
+                UserDetails userDetails=service.loadUserByUsername(UserName);
+
+                if(jwtUtil.validatetoken(token,userDetails)){
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken=
+                            new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+
+                    usernamePasswordAuthenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(httpServletRequest)
+
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
+            }
+
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
+
+        }
 
     }
+
+    public boolean isAdmin(){
+        return "admin".equalsIgnoreCase((String) claims.get("role"));
+
+    }
+
+    public boolean isUser(){
+        return "user".equalsIgnoreCase((String) claims.get("role"));
+
+    }
+
+
+    public String getCurrentUser(){
+
+        return UserName;
+    }
+
+
 }
